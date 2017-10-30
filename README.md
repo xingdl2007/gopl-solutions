@@ -14,4 +14,4 @@ You can download, build, and run the programs with the following commands:
     => $GOPATH/bin/1.1 a b c
 
 
-or you can review the code at <a href="https://xingdl2007.gitbooks.io/gopl-soljutions">gitbook</a>.
+or you can reference it at <a href="https://xingdl2007.gitbooks.io/gopl-soljutions">gitbook</a>.
