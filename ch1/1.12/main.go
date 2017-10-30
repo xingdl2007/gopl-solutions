@@ -52,9 +52,8 @@ func main() {
 			}
 			for k, v := range r.Form {
 				if k == "cycles" {
-					param, err := strconv.Atoi(v[0]);
-					cycleParam = param
-
+					var err error
+					cycleParam, err = strconv.Atoi(v[0]);
 					if err != nil {
 						log.Print(err)
 						cycleParam = 0
