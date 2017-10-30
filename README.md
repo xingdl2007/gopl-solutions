@@ -9,7 +9,9 @@ These exercise solution programs are licensed under a <a rel="license" href="htt
 You can download, build, and run the programs with the following commands:
 
 	$ export GOPATH=$HOME/gobook            # choose workspace directory
-	$ go get gopl.io/ch1/1.1                # fetch, build, install
+	$ go get gopl-solutions/ch1/1.1                # fetch, build, install
 	$ $GOPATH/bin/1.1 a b c                 # run
     => $GOPATH/bin/1.1 a b c
 
+
+or you can review the code at <a rel="https://xingdl2007.gitbooks.io/gopl-soljutions">gitbook</a>.
