@@ -39,7 +39,7 @@ func hanoi3(num int, from, aux, to string) {
 // ref: https://en.wikipedia.org/wiki/Tower_of_Hanoi#Iterative_solution
 // Use slice pointer (*[]int) instead of slice in hanoi2 , add a layer
 // of indirection, eliminate similar code
-func hanoi4(from *[]int, aux *[]int, to *[]int) {
+func hanoi4(from, aux, to *[]int) {
 	var iter int
 	var direction []*[]int
 
