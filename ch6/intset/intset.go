@@ -25,7 +25,7 @@ type IntSet struct {
 	count int
 }
 
-// just for test
+// helper
 func NewIntSet() *IntSet {
 	return new(IntSet)
 }
