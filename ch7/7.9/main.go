@@ -93,8 +93,7 @@ function submitform(formname) {
 
 //!+printTracks
 func printTracks(w io.Writer, x sort.Interface) {
-	switch x := x.(type) {
-	case *multier:
+	if x, ok := x.(*multier); ok {
 		trackTable.Execute(w, x)
 	}
 }
@@ -142,8 +141,7 @@ func setPrimary(x *multier, p string) {
 
 // if x is *multiple type, then update ordering keys
 func SetPrimary(x sort.Interface, p string) {
-	switch x := x.(type) {
-	case *multier:
+	if x, ok := x.(*multier); ok {
 		setPrimary(x, p)
 	}
 }
