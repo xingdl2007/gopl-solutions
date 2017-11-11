@@ -26,12 +26,12 @@ func isValid2(res []int, k int) bool {
 }
 
 // 8-queens problems
-// first try to find one solution
+// first try to find one solution, then continue
 func eightQueens() (count int) {
 	const N = 8
 	res := [...]int{-1, -1, -1, -1, -1, -1, -1, -1}
 
-	for k := 0; k >= 0; k-- {
+	for k := 0; k >= 0; {
 		// find one solution
 		for k != N && k >= 0 {
 			res[k]++
@@ -49,6 +49,11 @@ func eightQueens() (count int) {
 		if k == N {
 			count++
 			fmt.Println(res[:])
+
+			// minor optimization
+			res[k-1] = -1
+			// restart start from last but one
+			k -= 2
 		}
 	}
 	return
@@ -61,7 +66,7 @@ func NQueens(N int) (count int) {
 		res[i] = -1
 	}
 
-	for k := 0; k >= 0; k-- {
+	for k := 0; k >= 0; {
 		// find one solution
 		for k != N && k >= 0 {
 			res[k]++
@@ -78,6 +83,11 @@ func NQueens(N int) (count int) {
 		// counter
 		if k == N {
 			count++
+
+			// minor optimization
+			res[k-1] = -1
+			// restart start from last but one
+			k -= 2
 		}
 	}
 	return
