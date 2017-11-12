@@ -52,7 +52,8 @@ func handleConn(c net.Conn) {
 		case "close":
 			return
 		default:
-			help := "ls: list content\ncd: change directory\nget: get file content\nclose: close connection\n"
+			help := "ls: list content\ncd: change directory\nget: get file content\n" +
+				"close: close connection\n"
 			mustCopy(c, strings.NewReader(help))
 		}
 	}
