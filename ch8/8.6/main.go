@@ -15,10 +15,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
-
 	"gopl.io/ch5/links"
-	"strings"
 )
 
 var depth = flag.Int("depth", 1,
@@ -48,11 +45,7 @@ func main() {
 	// Add command-line arguments to worklist.
 	// skip depth parameter
 	go func() {
-		if strings.HasPrefix(os.Args[1], "http") {
-			worklist <- os.Args[1:]
-		} else {
-			worklist <- os.Args[2:]
-		}
+		worklist <- flag.Args()
 	}()
 
 	// Create 20 crawler goroutines to fetch each unseen link.
