@@ -12,7 +12,7 @@ import (
 	"image"
 	"image/color"
 	"math/cmplx"
-	"sync"
+
 	"time"
 	"fmt"
 )
@@ -30,13 +30,9 @@ func main() {
 	start := time.Now()
 	// partition jobs
 	size := height / N
-	var wg sync.WaitGroup
 	var done = make(chan struct{})
-
 	for i := 0; i < N; i++ {
-		wg.Add(1)
 		go func(i int) {
-			defer wg.Done()
 			for py := size * i; py < size*(i+1); py++ {
 				y := float64(py)/height*(ymax-ymin) + ymin
 				for px := 0; px < width; px++ {
@@ -51,14 +47,9 @@ func main() {
 		}(i)
 	}
 
-	// closer
-	go func() {
-		wg.Wait()
-		close(done)
-	}()
-
 	// drain done channel
-	for range done {
+	for i := 0; i < N; i++ {
+		<-done
 	}
 
 	// skip output
