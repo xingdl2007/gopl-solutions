@@ -14,14 +14,14 @@ func main() {
 
 	t := time.NewTimer(1 * time.Minute)
 	done := make(chan struct{})
-	shtudown := make(chan struct{})
+	shutdown := make(chan struct{})
 
 	// ping->pong
 	go func() {
 	loop:
 		for {
 			select {
-			case <-shtudown:
+			case <-shutdown:
 				break loop
 			case v := <-ping:
 				counter++
@@ -35,7 +35,7 @@ func main() {
 	loop:
 		for {
 			select {
-			case <-shtudown:
+			case <-shutdown:
 				break loop
 			case v := <-pong:
 				ping <- v
@@ -49,7 +49,7 @@ func main() {
 
 	// 1 minutes
 	<-t.C
-	close(shtudown)
+	close(shutdown)
 
 	// drain the one which is blocked
 	select {
