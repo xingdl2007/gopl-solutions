@@ -17,7 +17,6 @@ import (
 // Its zero value represents the empty set.
 type IntSet struct {
 	words []uint64
-	Flag  bool
 }
 
 // just for test
