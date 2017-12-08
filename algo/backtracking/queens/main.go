@@ -35,7 +35,7 @@ func eightQueens() (count int) {
 		// find one solution
 		for k != N && k >= 0 {
 			res[k]++
-			// subtle: backtrace
+			// subtle: backtracking
 			if res[k] == N {
 				res[k] = -1
 				k--
@@ -70,7 +70,7 @@ func NQueens(N int) (count int) {
 		// find one solution
 		for k != N && k >= 0 {
 			res[k]++
-			// subtle: backtrace
+			// subtle: backtracking
 			if res[k] == N {
 				res[k] = -1
 				k--
