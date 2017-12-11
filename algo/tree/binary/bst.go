@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"bytes"
+	"math"
 )
 
 // Definition for a binary search tree node.
@@ -237,17 +238,18 @@ func (t *TreeNode) String() string {
 }
 
 // binary search tree property validation
-func (t *TreeNode) Check() bool {
+func (t *TreeNode) isBST(min, max int) bool {
 	if t == nil {
 		return true
 	}
-	if t.left != nil && t.left.val >= t.val {
+	if t.val <= min || t.val >= max {
 		return false
 	}
-	if t.right != nil && t.right.val < t.val {
-		return false
-	}
-	return t.left.Check() && t.right.Check()
+	return t.left.isBST(min, t.val) && t.right.isBST(t.val, max)
+}
+
+func (t *TreeNode) Check() bool {
+	return t.isBST(math.MinInt64, math.MaxInt64)
 }
 
 // Build a binary search tree from a slice
