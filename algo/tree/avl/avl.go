@@ -4,15 +4,30 @@ package main
 import (
 	"fmt"
 	"strings"
+	"bytes"
+	"strconv"
+	"math"
 )
 
 // Definition for a binary tree node.
+/*
+	Note: height is optional, if not valid, the following function
+    can be used to calculate height on the fly (recursive):
+
+	func (t *TreeNode) Height() int {
+		if t == nil {
+			return -1
+		}
+		return max(t.Left.Height(), t.Right.Height()) + 1
+	}
+
+	Then, there will be no need to AdjustHeight() in rotation and insert.
+ */
 type TreeNode struct {
-	Val         int
-	Left        *TreeNode
-	Right       *TreeNode
-	LeftHeight  int // Left subTree Height = left.height() +1
-	RightHeight int
+	Val    int
+	Left   *TreeNode
+	Right  *TreeNode
+	height int
 }
 
 // nil is valid receiver for convenience
@@ -20,7 +35,7 @@ func (t *TreeNode) BalanceFactor() int {
 	if t == nil {
 		return 0
 	}
-	return t.LeftHeight - t.RightHeight
+	return t.Left.Height() - t.Right.Height()
 }
 
 // nil is valid receiver for convenience
@@ -28,12 +43,11 @@ func (t *TreeNode) Height() int {
 	if t == nil {
 		return -1
 	}
-	return max(t.LeftHeight, t.RightHeight)
+	return t.height
 }
 
 func (t *TreeNode) AdjustHeight() {
-	t.LeftHeight = t.Left.Height() + 1
-	t.RightHeight = t.Right.Height() + 1
+	t.height = max(t.Left.Height(), t.Right.Height()) + 1
 }
 
 // helper function
@@ -44,47 +58,38 @@ func max(x, y int) int {
 	return y
 }
 
-// info: how to maintain subtree height
-func put(t *TreeNode, val int) *TreeNode {
+func Insert(t *TreeNode, val int) *TreeNode {
 	if t == nil {
 		return &TreeNode{Val: val}
 	}
 	if val < t.Val {
-		t.Left = put(t.Left, val)
-		//t.LeftHeight = t.Left.Height() + 1
+		t.Left = Insert(t.Left, val)
 	} else {
-		t.Right = put(t.Right, val)
-		//t.RightHeight = t.Right.Height() + 1
+		t.Right = Insert(t.Right, val)
 	}
 	t.AdjustHeight()
 
-	// reBalance if put break AVL invariant
-	// t is the nearest node
-	if t.BalanceFactor() == 2 || t.BalanceFactor() == -2 {
-		if val < t.Val {
-			// R or RL
-			if t.Left.BalanceFactor() == 1 {
-				// R
-				t = rRotation(t)
-			} else {
-				// RL
-				t = rlRotation(t)
-			}
+	// reBalance if Insert break AVL invariant; t is the nearest node
+	if t.BalanceFactor() > 1 {
+		// R or LR
+		if t.Left.BalanceFactor() > 0 {
+			t = rotateRight(t)
 		} else {
-			// L or LR
-			if t.Right.BalanceFactor() == -1 {
-				// L
-				t = lRotation(t)
-			} else {
-				// LR
-				t = lrRotation(t)
-			}
+			t = rotateLeftRight(t)
+		}
+	} else if t.BalanceFactor() < -1 {
+		// L or RL
+		if t.Right.BalanceFactor() < 0 {
+			t = rotateLeft(t)
+		} else {
+			t = rotateRightLeft(t)
 		}
 	}
+
 	return t
 }
 
-func rRotation(t *TreeNode) *TreeNode {
+func rotateRight(t *TreeNode) *TreeNode {
 	c := t.Left
 	t.Left = c.Right
 	c.Right = t
@@ -94,7 +99,7 @@ func rRotation(t *TreeNode) *TreeNode {
 	return c
 }
 
-func lRotation(t *TreeNode) *TreeNode {
+func rotateLeft(t *TreeNode) *TreeNode {
 	c := t.Right
 	t.Right = c.Left
 	c.Left = t
@@ -104,7 +109,7 @@ func lRotation(t *TreeNode) *TreeNode {
 	return c
 }
 
-func rlRotation(r *TreeNode) *TreeNode {
+func rotateLeftRight(r *TreeNode) *TreeNode {
 	c := r.Left
 	g := c.Right
 
@@ -120,7 +125,7 @@ func rlRotation(r *TreeNode) *TreeNode {
 	return g
 }
 
-func lrRotation(l *TreeNode) *TreeNode {
+func rotateRightLeft(l *TreeNode) *TreeNode {
 	c := l.Right
 	g := c.Left
 
@@ -133,19 +138,43 @@ func lrRotation(l *TreeNode) *TreeNode {
 	l.AdjustHeight()
 	c.AdjustHeight()
 	g.AdjustHeight()
-
 	return g
+}
+
+func (t *TreeNode) isBST(min, max int) bool {
+	if t == nil {
+		return true
+	}
+	if t.Val <= min || t.Val >= max {
+		return false
+	}
+	return t.Left.isBST(min, t.Val) && t.Right.isBST(t.Val, max)
+}
+
+func (t *TreeNode) isAVL() bool {
+	if t == nil {
+		return true
+	}
+	if t.BalanceFactor() > 1 || t.BalanceFactor() < -1 {
+		return false
+	}
+	return t.Left.isAVL() && t.Right.isAVL()
+}
+
+func (t *TreeNode) Check() bool {
+	return t.isBST(math.MinInt64, math.MaxInt64) && t.isAVL()
 }
 
 func BuildAvlBST(a []int) *TreeNode {
 	var root *TreeNode
 	for _, item := range a {
-		root = put(root, item)
+		root = Insert(root, item)
 	}
 	return root
 }
 
-func (t *TreeNode) String() string {
+// in order traverse
+func (t *TreeNode) Squash() string {
 	var nodes []string
 	var walk func(*TreeNode)
 	walk = func(n *TreeNode) {
@@ -153,8 +182,7 @@ func (t *TreeNode) String() string {
 			return
 		}
 		walk(n.Left)
-		nodes = append(nodes, fmt.Sprintf("%d[%d-%d:%d] ", n.Val,
-			n.LeftHeight, n.RightHeight, n.LeftHeight-n.RightHeight))
+		nodes = append(nodes, fmt.Sprintf("%d[%d:%d] ", n.Val, n.Height(), n.BalanceFactor()))
 		walk(n.Right)
 	}
 	nodes = append(nodes, "[")
@@ -163,13 +191,41 @@ func (t *TreeNode) String() string {
 	return strings.Join(nodes, " ")
 }
 
+// useful and elegant
+func (t *TreeNode) Print(prefix string, isTail bool) string {
+	if t == nil {
+		return ""
+	}
+	var buf bytes.Buffer
+	var addition1, addition2 string
+	if isTail {
+		addition1 = "└── "
+		addition2 = "    "
+	} else {
+		addition1 = "├── "
+		addition2 = "│   "
+	}
+	buf.WriteString(prefix + addition1 + strconv.Itoa(t.Val) + "\n")
+
+	// left node is tail if there is no right node
+	if t.Right != nil {
+		isTail = false
+	} else {
+		isTail = true
+	}
+	buf.WriteString(t.Left.Print(prefix+addition2, isTail))
+	// right node is always the tail
+	buf.WriteString(t.Right.Print(prefix+addition2, true))
+	return buf.String()
+}
+
+func (t *TreeNode) String() string {
+	return t.Print("", true)
+}
+
 func main() {
 	array1 := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
 	array2 := []int{9, 8, 7, 6, 5, 4, 3, 2, 1}
 	fmt.Println(BuildAvlBST(array1))
 	fmt.Println(BuildAvlBST(array2))
-
-	//var test *TreeNode
-	//fmt.Println(test == nil)
-	//fmt.Println(test.Height())
 }
