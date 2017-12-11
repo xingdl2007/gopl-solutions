@@ -58,35 +58,100 @@ func max(x, y int) int {
 	return y
 }
 
-func Insert(t *TreeNode, val int) *TreeNode {
-	if t == nil {
-		return &TreeNode{Val: val}
-	}
-	if val < t.Val {
-		t.Left = Insert(t.Left, val)
-	} else {
-		t.Right = Insert(t.Right, val)
-	}
-	t.AdjustHeight()
-
+func (t *TreeNode) balance() *TreeNode {
+	var b = t
 	// reBalance if Insert break AVL invariant; t is the nearest node
 	if t.BalanceFactor() > 1 {
 		// R or LR
 		if t.Left.BalanceFactor() > 0 {
-			t = rotateRight(t)
+			b = rotateRight(t)
 		} else {
-			t = rotateLeftRight(t)
+			b = rotateLeftRight(t)
 		}
 	} else if t.BalanceFactor() < -1 {
 		// L or RL
 		if t.Right.BalanceFactor() < 0 {
-			t = rotateLeft(t)
+			b = rotateLeft(t)
 		} else {
-			t = rotateRightLeft(t)
+			b = rotateRightLeft(t)
 		}
 	}
+	return b
+}
 
-	return t
+func (t *TreeNode) Exists(v int) bool {
+	if t == nil {
+		return false
+	}
+	switch {
+	case v == t.Val:
+		return true
+	case v < t.Val:
+		return t.Left.Exists(v)
+	default:
+		return t.Right.Exists(v)
+	}
+}
+
+func Insert(t *TreeNode, key int) *TreeNode {
+	if t == nil {
+		return &TreeNode{Val: key}
+	}
+	if key < t.Val {
+		t.Left = Insert(t.Left, key)
+	} else {
+		t.Right = Insert(t.Right, key)
+	}
+	t.AdjustHeight()
+	return t.balance()
+}
+
+func (t *TreeNode) min() *TreeNode {
+	if t == nil {
+		return nil
+	}
+	if t.Left == nil {
+		return t
+	}
+	return t.Left.min()
+}
+
+func (t *TreeNode) deleteMin() *TreeNode {
+	if t == nil {
+		return nil
+	}
+	if t.Left == nil {
+		return t.Right
+	}
+	t.Left = t.Left.deleteMin()
+	t.AdjustHeight()
+	return t.balance()
+}
+
+// interesting, much like classic bst deletion
+// ref: http://www.cdn.geeksforgeeks.org/avl-tree-set-2-deletion/
+func Delete(t *TreeNode, key int) *TreeNode {
+	if t == nil {
+		return &TreeNode{Val: key}
+	}
+	if key < t.Val {
+		t.Left = Delete(t.Left, key)
+	} else if key > t.Val {
+		t.Right = Delete(t.Right, key)
+	} else {
+		if t.Left == nil {
+			return t.Right
+		}
+		if t.Right == nil {
+			return t.Left
+		}
+		x := t
+		t = x.Right.min()
+		t.Right = Delete(x.Right, t.Val)
+		t.Left = x.Left
+	}
+	t.AdjustHeight()
+	return t.balance()
 }
 
 func rotateRight(t *TreeNode) *TreeNode {
@@ -115,7 +180,6 @@ func rotateLeftRight(r *TreeNode) *TreeNode {
 
 	c.Right = g.Left
 	r.Left = g.Right
-
 	g.Left = c
 	g.Right = r
 
@@ -131,7 +195,6 @@ func rotateRightLeft(l *TreeNode) *TreeNode {
 
 	c.Left = g.Right
 	l.Right = g.Left
-
 	g.Right = c
 	g.Left = l
 
@@ -224,8 +287,18 @@ func (t *TreeNode) String() string {
 }
 
 func main() {
-	array1 := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	array2 := []int{9, 8, 7, 6, 5, 4, 3, 2, 1}
-	fmt.Println(BuildAvlBST(array1))
-	fmt.Println(BuildAvlBST(array2))
+	array1 := []int{5, 6, 8, 3, 2, 4, 7}
+	tree := BuildAvlBST(array1)
+
+	tree = Delete(tree, 3)
+	fmt.Println(tree)
+	fmt.Println(tree.Check())
+
+	data := []int{44, 17, 62, 32, 50, 78, 48, 54, 88}
+	tree = BuildAvlBST(data)
+
+	fmt.Println(tree)
+	tree = Delete(tree, 32)
+	fmt.Println(tree)
+	fmt.Println(tree.Check())
 }
