@@ -171,6 +171,9 @@ func Delete(root *TreeNode, key int) *TreeNode {
 	if root == nil {
 		return nil
 	}
+	if !root.Exists(key) {
+		return root
+	}
 	if !root.Left.isRed() && !root.Right.isRed() {
 		root.Color = RED
 	}
@@ -333,7 +336,7 @@ func main() {
 	fmt.Println(tree)
 	fmt.Println(tree.Check())
 
-	tree = Delete(tree, 2)
+	tree = Delete(tree, 1)
 	fmt.Println(tree)
 	fmt.Println(tree.Check())
 }
