@@ -29,7 +29,7 @@ import (
 
 //!+main
 
-var palette = []color.Color{color.White, color.RGBA{0, 0xff, 0, 0xff}}
+var palette = []color.Color{color.Black, color.RGBA{0, 0xff, 0, 0xff}}
 
 const (
 	whiteIndex = 0 // first color in palette
