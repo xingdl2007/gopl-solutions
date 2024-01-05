@@ -3,34 +3,19 @@
 package main
 
 import (
-	"os/exec"
-	"log"
-	"os"
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
+	"os"
+	"os/exec"
+	"sort"
 )
 
 type Package struct {
 	ImportPath string   // import path of package in dir
 	Name       string   // package name
 	Deps       []string // all (recursively) imported dependencies
-}
-
-func binarySearch(array []string, key string) bool {
-	low, high := 0, len(array)-1
-	for low <= high {
-		var mid = (low + high) / 2
-		if key == array[mid] {
-			return true
-		}
-		if key < array[mid] {
-			high = mid - 1
-		} else {
-			low = mid + 1
-		}
-	}
-	return false
 }
 
 func main() {
@@ -73,7 +58,7 @@ func main() {
 			if err = json.Unmarshal(buf.Bytes(), &info); err != nil {
 				log.Fatal(err)
 			}
-			if binarySearch(info.Deps, key) {
+			if sort.SearchStrings(info.Deps, key) == len(info.Deps) {
 				fmt.Println(info.ImportPath)
 			}
 			buf.Truncate(0)
